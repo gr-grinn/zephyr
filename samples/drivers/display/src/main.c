@@ -28,7 +28,6 @@ enum corner {
 typedef void (*fill_buffer)(enum corner corner, uint8_t grey, uint8_t *buf,
 			    size_t buf_size);
 
-
 #ifdef CONFIG_ARCH_POSIX
 static void posix_exit_main(int exit_code)
 {
@@ -170,6 +169,8 @@ static inline void fill_buffer_mono10(enum corner corner, uint8_t grey,
 	fill_buffer_mono(corner, grey, 0xFFu, 0x00u, buf, buf_size);
 }
 
+static uint8_t buf[1024 * 600 * 3] Z_GENERIC_SECTION(.lvgl_buf) __aligned(8);
+
 int main(void)
 {
 	size_t x;
@@ -180,7 +181,7 @@ int main(void)
 	size_t scale;
 	size_t grey_count;
 	uint8_t bg_color;
-	uint8_t *buf;
+// 	uint8_t *buf;
 	int32_t grey_scale_sleep;
 	const struct device *display_dev;
 	struct display_capabilities capabilities;
@@ -279,16 +280,21 @@ int main(void)
 #endif
 	}
 
-	buf = k_malloc(buf_size);
-
-	if (buf == NULL) {
-		LOG_ERR("Could not allocate memory. Aborting sample.");
-#ifdef CONFIG_ARCH_POSIX
-		posix_exit_main(1);
-#else
-		return 0;
-#endif
+	if (buf_size > ARRAY_SIZE(buf)) {
+		LOG_ERR("buf_size: %u vs %u available", buf_size, ARRAY_SIZE(buf));
+		return -ENOMEM;
 	}
+
+// 	buf = k_malloc(buf_size);
+//
+// 	if (buf == NULL) {
+// 		LOG_ERR("Could not allocate memory. Aborting sample.");
+// #ifdef CONFIG_ARCH_POSIX
+// 		posix_exit_main(1);
+// #else
+// 		return 0;
+// #endif
+// 	}
 
 	(void)memset(buf, bg_color, buf_size);
 
