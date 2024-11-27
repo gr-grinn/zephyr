@@ -47,6 +47,9 @@ _IGNORE_COMPATIBLES = frozenset([
         # device controller, the logical connection is established after USB
         # device support is enabled.
         "zephyr,cdc-acm-uart",
+        # There is an issue with LTDC depending on display, while the display
+        # fails to initialize after LTDC in case of DSI display.
+        "st,stm32-ltdc",
         ])
 
 class Priority:
