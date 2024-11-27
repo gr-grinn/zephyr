@@ -118,3 +118,8 @@ properties:
       Show DSI host color bars, select color bar orientation
       0 : Vertical color bars
       1 : Horizontal color bars
+
+  ths-zero:
+    type: int
+    description: |
+      DSI host THS_ZERO value in nanoseconds.

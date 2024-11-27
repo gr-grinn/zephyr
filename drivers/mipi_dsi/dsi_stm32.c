@@ -54,6 +54,7 @@ struct mipi_dsi_stm32_data {
 	DSI_PLLInitTypeDef pll_init;
 	uint32_t lane_clk_khz;
 	uint32_t pixel_clk_khz;
+	uint8_t *ths_zero;
 };
 
 static void mipi_dsi_stm32_log_config(const struct device *dev)
@@ -202,6 +203,14 @@ static int mipi_dsi_stm32_host_init(const struct device *dev)
 		ret = HAL_DSI_ConfigPhyTimer(&data->hdsi, data->phy_timings);
 		if (ret != HAL_OK) {
 			LOG_ERR("Set DSI PHY timings failed! (%d)", ret);
+			return -ret;
+		}
+	}
+
+	if (data->ths_zero) {
+		ret = HAL_DSI_SetPHYTimings(&data->hdsi, DSI_THS_ZERO, ENABLE, *(data->ths_zero));
+		if (ret != HAL_OK) {
+			LOG_ERR("Set DSI PHY THS_ZERO timings failed! (%d)", ret);
 			return -ret;
 		}
 	}
@@ -445,6 +454,8 @@ static int mipi_dsi_stm32_init(const struct device *dev)
 			.DataLaneMaxReadTime = DT_INST_PROP_BY_IDX(inst, phy_timings, 4),	\
 			.StopWaitTime = DT_INST_PROP_BY_IDX(inst, phy_timings, 5)		\
 		}), ());									\
+	COND_CODE_1(DT_INST_NODE_HAS_PROP(inst, ths_zero),					\
+		(static uint8_t ths_zero_##inst = DT_INST_PROP(inst, ths_zero)), ());		\
 	/* Only child data-lanes property at index 0 is taken into account */			\
 	static const uint32_t data_lanes_##inst[] = {						\
 		DT_INST_FOREACH_CHILD_STATUS_OKAY_SEP_VARGS(inst, DT_PROP_BY_IDX, (,),		\
@@ -485,6 +496,8 @@ static int mipi_dsi_stm32_init(const struct device *dev)
 					     (&host_timeouts_##inst), (NULL)),			\
 		.phy_timings = COND_CODE_1(DT_INST_NODE_HAS_PROP(inst, phy_timings),		\
 					   (&phy_timings_##inst), (NULL)),			\
+		.ths_zero = COND_CODE_1(DT_INST_NODE_HAS_PROP(inst, ths_zero),			\
+					   (&ths_zero_##inst), (NULL)),				\
 		.vid_cfg = {									\
 			.HSPolarity = DT_INST_PROP(inst, hs_active_high) ?			\
 				      DSI_HSYNC_ACTIVE_HIGH : DSI_HSYNC_ACTIVE_LOW,		\
