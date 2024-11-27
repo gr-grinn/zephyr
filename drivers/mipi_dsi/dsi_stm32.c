@@ -494,8 +494,9 @@ static int mipi_dsi_stm32_init(const struct device *dev)
 				      DSI_DATA_ENABLE_ACTIVE_HIGH : DSI_DATA_ENABLE_ACTIVE_LOW, \
 			.LooselyPacked = DT_INST_PROP(inst, loosely_packed) ? \
 				      DSI_LOOSELY_PACKED_ENABLE : DSI_LOOSELY_PACKED_DISABLE,	\
-			.LPLargestPacketSize =  DT_INST_PROP_OR(inst, largest_packet_size, 4), \
-			.LPVACTLargestPacketSize = DT_INST_PROP_OR(inst, largest_packet_size, 4), \
+			.LPLargestPacketSize =  DT_INST_PROP_OR(inst, largest_packet_size, 4),	\
+			.LPVACTLargestPacketSize = DT_INST_PROP_OR(inst,			\
+								   vact_largest_packet_size, 4),\
 			.FrameBTAAcknowledgeEnable = DT_INST_PROP(inst, bta_ack_disable) ?	\
 					  DSI_FBTAA_DISABLE : DSI_FBTAA_ENABLE,	\
 		},										\

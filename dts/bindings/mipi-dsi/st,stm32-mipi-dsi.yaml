@@ -50,7 +50,13 @@ properties:
     type: int
     description: |
       The size, in bytes, of the low power largest packet that
-      can fit in a line during VSA, VBP, VFP and VACT regions
+      can fit in a line during VSA, VBP and VFP regions
+
+  vact-largest-packet-size:
+    type: int
+    description: |
+      The size, in bytes, of the low power largest packet that
+      can fit in a line during VACT region
 
   bta-ack-disable:
     type: boolean
