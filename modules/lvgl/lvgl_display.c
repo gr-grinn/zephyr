@@ -19,7 +19,9 @@
 
 #ifdef CONFIG_LV_Z_FLUSH_THREAD
 
+#ifndef CONFIG_LV_Z_FLUSH_THREAD_YIELD_ON_WAIT
 K_SEM_DEFINE(flush_complete, 0, 1);
+#endif
 /* Message queue will only ever need to queue one message */
 K_MSGQ_DEFINE(flush_queue, sizeof(struct lvgl_display_flush), 1, 1);
 
@@ -37,7 +39,9 @@ static void stm32_dma2d_irq_handler(const struct device *dev)
 	LL_DMA2D_ClearFlag_TC(DMA2D);
 
 	lv_disp_flush_ready(lvgl_disp_driver);
+#ifndef CONFIG_LV_Z_FLUSH_THREAD_YIELD_ON_WAIT
 	k_sem_give(&flush_complete);
+#endif
 }
 
 #endif /* CONFIG_LV_Z_USE_DMA2D_FOR_FRAMEBUFFER */
@@ -77,7 +81,9 @@ void lvgl_flush_thread_entry(void *arg1, void *arg2, void *arg3)
 			      flush.buf);
 
 		lv_disp_flush_ready(flush.disp_drv);
+#ifndef CONFIG_LV_Z_FLUSH_THREAD_YIELD_ON_WAIT
 		k_sem_give(&flush_complete);
+#endif
 #endif /* CONFIG_LV_Z_USE_DMA2D_FOR_FRAMEBUFFER */
 	}
 }
@@ -89,7 +95,11 @@ K_THREAD_DEFINE(lvgl_flush_thread, CONFIG_LV_Z_FLUSH_THREAD_STACK_SIZE,
 
 void lvgl_wait_cb(lv_disp_drv_t *disp_drv)
 {
+#ifdef CONFIG_LV_Z_FLUSH_THREAD_YIELD_ON_WAIT
+	k_yield();
+#else
 	k_sem_take(&flush_complete, K_FOREVER);
+#endif
 }
 
 #endif /* CONFIG_LV_Z_FLUSH_THREAD */
@@ -176,7 +186,9 @@ void lvgl_flush_display(struct lvgl_display_flush *request)
 	 * LVGL will only start a flush once the previous one is complete,
 	 * so we can reset the flush state semaphore here.
 	 */
+#ifndef CONFIG_LV_Z_FLUSH_THREAD_YIELD_ON_WAIT
 	k_sem_reset(&flush_complete);
+#endif
 	k_msgq_put(&flush_queue, request, K_FOREVER);
 	/* Explicitly yield, in case the calling thread is a cooperative one */
 	k_yield();

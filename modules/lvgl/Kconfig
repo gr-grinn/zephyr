@@ -114,6 +114,13 @@ config LV_Z_USE_DMA2D_FOR_FRAMEBUFFER
 	depends on STM32_LTDC
 	default y
 
+config LV_Z_FLUSH_THREAD_YIELD_ON_WAIT
+	bool "Yield in LVGL wait callback"
+	help
+	  Use `k_yield` instead of waiting forever on semaphore.
+	  This can slightly improve performance when LVGL double
+	  buffering is used.
+
 endif # LV_Z_FLUSH_THREAD
 
 config LV_Z_AREA_X_ALIGNMENT_WIDTH
