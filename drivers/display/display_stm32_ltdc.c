@@ -253,6 +253,17 @@ static int stm32_ltdc_read(const struct device *dev, const uint16_t x,
 	return 0;
 }
 
+static void *stm32_ltdc_get_framebuffer(const struct device *dev)
+{
+#if CONFIG_STM32_LTDC_FB_NUM == 1
+	struct display_stm32_ltdc_data *data = dev->data;
+
+	return data->frame_buffer;
+#else
+	return NULL;
+#endif
+}
+
 static int stm32_ltdc_display_blanking_off(const struct device *dev)
 {
 	const struct display_stm32_ltdc_config *config = dev->config;
@@ -471,6 +482,7 @@ static const struct display_driver_api stm32_ltdc_display_api = {
 	.set_orientation = stm32_ltdc_set_orientation,
 	.blanking_off = stm32_ltdc_display_blanking_off,
 	.blanking_on = stm32_ltdc_display_blanking_on,
+	.get_framebuffer = stm32_ltdc_get_framebuffer,
 };
 
 #if DT_INST_NODE_HAS_PROP(0, ext_sdram)
