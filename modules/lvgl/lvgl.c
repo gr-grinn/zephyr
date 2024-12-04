@@ -34,9 +34,27 @@ static lv_disp_draw_buf_t disp_buf;
 #define DISPLAY_WIDTH  DT_PROP(DISPLAY_NODE, width)
 #define DISPLAY_HEIGHT DT_PROP(DISPLAY_NODE, height)
 
+BUILD_ASSERT(CONFIG_LV_Z_VDB_SIZE > 0);
+
+#if defined(CONFIG_LV_Z_VDB_SIZE_IN_PERCENT)
+
+BUILD_ASSERT(CONFIG_LV_Z_VDB_SIZE <= 100);
+
 #define BUFFER_SIZE                                                                                \
 	(CONFIG_LV_Z_BITS_PER_PIXEL *                                                              \
 	 ((CONFIG_LV_Z_VDB_SIZE * DISPLAY_WIDTH * DISPLAY_HEIGHT) / 100) / 8)
+
+#elif defined(CONFIG_LV_Z_VDB_SIZE_IN_LINES)
+
+#define BUFFER_SIZE                                                                                \
+	(CONFIG_LV_Z_BITS_PER_PIXEL *                                                              \
+	 ((CONFIG_LV_Z_VDB_SIZE * DISPLAY_WIDTH)) / 8)
+
+#else /* CONFIG_LV_Z_VDB_SIZE_IN_PERCENT */
+
+#error "LV_Z_VDB_SIZE_UNIT not set"
+
+#endif /* CONFIG_LV_Z_VDB_SIZE_IN_PERCENT */
 
 #define NBR_PIXELS_IN_BUFFER (BUFFER_SIZE * 8 / CONFIG_LV_Z_BITS_PER_PIXEL)
 
@@ -141,7 +159,16 @@ static int lvgl_allocate_rendering_buffers(lv_disp_drv_t *disp_driver)
 	disp_driver->hor_res = data->cap.x_resolution;
 	disp_driver->ver_res = data->cap.y_resolution;
 
-	buf_nbr_pixels = (CONFIG_LV_Z_VDB_SIZE * disp_driver->hor_res * disp_driver->ver_res) / 100;
+	if (IS_ENABLED(CONFIG_LV_Z_VDB_SIZE_IN_PERCENT)) {
+		buf_nbr_pixels =
+			(CONFIG_LV_Z_VDB_SIZE * disp_driver->hor_res * disp_driver->ver_res) / 100;
+	} else if (IS_ENABLED(CONFIG_LV_Z_VDB_SIZE_IN_LINES)) {
+		buf_nbr_pixels = (CONFIG_LV_Z_VDB_SIZE * disp_driver->hor_res);
+	} else {
+		LOG_ERR("LV_Z_VDB_SIZE_UNIT not set");
+		return -ENOTSUP;
+	}
+
 	/* one horizontal line is the minimum buffer requirement for lvgl */
 	if (buf_nbr_pixels < disp_driver->hor_res) {
 		buf_nbr_pixels = disp_driver->hor_res;

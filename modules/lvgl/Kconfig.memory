@@ -48,14 +48,30 @@ config LV_Z_MEMORY_POOL_CUSTOM_SECTION
 	  memory pool to a custom location, such as tightly coupled or
 	  external memory.
 
+choice LV_Z_VDB_SIZE_UNIT
+	prompt "Unit of LV_Z_VDB_SIZE"
+	default LV_Z_VDB_SIZE_IN_PERCENT
+	help
+	  Set unit of the LV_Z_VDB_SIZE setting
+
+	config LV_Z_VDB_SIZE_IN_PERCENT
+	bool "Percent"
+	help
+	  LV_Z_VDB_SIZE in percent of the whole screen size.
+
+	config LV_Z_VDB_SIZE_IN_LINES
+	bool "Lines"
+	help
+	  LV_Z_VDB_SIZE in horizontal lines.
+
+endchoice
+
 config LV_Z_VDB_SIZE
 	int "Rendering buffer size"
 	default 100 if LV_Z_FULL_REFRESH
 	default 10
-	range 1 100
 	help
-	  Size of the buffer used for rendering screen content as a percentage
-	  of total display size.
+	  Size of the buffer used for rendering screen content in unit
 
 config LV_Z_DOUBLE_VDB
 	bool "Use two rendering buffers"
@@ -64,6 +80,7 @@ config LV_Z_DOUBLE_VDB
 
 config LV_Z_FULL_REFRESH
 	bool "Force full refresh mode"
+	depends on LV_Z_VDB_SIZE_IN_PERCENT
 	help
 	  Force full refresh of display on update. When combined with
 	  LV_Z_VDB_SIZE, this setting can improve performance for display
