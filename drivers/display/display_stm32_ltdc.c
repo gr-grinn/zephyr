@@ -172,6 +172,10 @@ static int stm32_ltdc_write(const struct device *dev, const uint16_t x,
 	const uint8_t *src = buf;
 	uint16_t row;
 
+#ifdef CONFIG_LV_USE_GPU_STM32_DMA2D
+	sys_cache_data_invd_range((void *)src, desc->buf_size);
+#endif /* CONFIG_LV_USE_GPU_STM32_DMA2D */
+
 	if ((x == 0) && (y == 0) &&
 	    (desc->width == config->width) &&
 	    (desc->height ==  config->height) &&
