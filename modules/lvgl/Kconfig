@@ -109,6 +109,11 @@ config LV_Z_FLUSH_THREAD_PRIO
 	help
 	  Cooperative priority of LVGL flush thread.
 
+config LV_Z_USE_DMA2D_FOR_FRAMEBUFFER
+	bool "Use DMA2D to transfer LVGL buffer to framebuffer"
+	depends on STM32_LTDC
+	default y
+
 endif # LV_Z_FLUSH_THREAD
 
 config LV_Z_AREA_X_ALIGNMENT_WIDTH
