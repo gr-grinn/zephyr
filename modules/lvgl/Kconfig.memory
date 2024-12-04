@@ -105,6 +105,19 @@ config LV_Z_VBD_CUSTOM_SECTION
 	  rendering buffers to a custom location, such as tightly coupled or
 	  external memory.
 
+if LV_Z_VBD_CUSTOM_SECTION && LV_Z_DOUBLE_VDB
+
+config LV_Z_VBD_CUSTOM_SECTION_SECONDARY
+	bool "Link secondary buffer to separate section"
+	help
+	  Place second LVGL rendering buffer in a separate section,
+	  with tag ".lvgl_buf_secondary". This allows to have both buffer placed
+	  in different sections, possibly leading to memory throughput improvement
+	  e.g. when RAM are accesible through different bus or can
+	  be placed in different RAM memory banks.
+
+endif # LV_Z_VBD_CUSTOM_SECTION && LV_Z_DOUBLE_VDB
+
 choice LV_Z_RENDERING_BUFFER_ALLOCATION
 	prompt "Rendering Buffer Allocation"
 	default LV_Z_BUFFER_ALLOC_STATIC

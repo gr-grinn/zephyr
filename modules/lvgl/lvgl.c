@@ -71,8 +71,12 @@ static uint8_t buf0[BUFFER_SIZE]
 #ifdef CONFIG_LV_Z_DOUBLE_VDB
 static uint8_t buf1[BUFFER_SIZE]
 #ifdef CONFIG_LV_Z_VBD_CUSTOM_SECTION
+#ifdef CONFIG_LV_Z_VBD_CUSTOM_SECTION_SECONDARY
+	Z_GENERIC_SECTION(.lvgl_buf_secondary)
+#else
 	Z_GENERIC_SECTION(.lvgl_buf)
-#endif
+#endif /* CONFIG_LV_Z_VBD_CUSTOM_SECTION_SECONDARY */
+#endif /* CONFIG_LV_Z_VBD_CUSTOM_SECTION */
 		__aligned(CONFIG_LV_Z_VDB_ALIGN);
 #endif /* CONFIG_LV_Z_DOUBLE_VDB */
 
